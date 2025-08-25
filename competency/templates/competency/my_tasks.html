@@ -1,0 +1,41 @@
+{% extends 'competency/base.html' %}
+{% block content %}
+
+<h2>My Rejected Tasks</h2>
+
+{% if tasks %}
+  <table class="table table-bordered">
+    <thead class="table-light">
+      <tr>
+        <th>Evidence</th>
+        <th>Description</th>
+        <th>Feedback</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in tasks %}
+      <tr>
+        <td>{{ task.1 }}</td>
+        <td>{{ task.2 }}</td>
+        <td>
+          {% if task.3 %}
+            {{ task.3 }}
+          {% else %}
+            <span class="text-muted">None</span>
+          {% endif %}
+        </td>
+        <td>{{ task.4 }}</td>
+        <td>
+          <a href="{% url 'view_feedback' task.0 %}" class="btn btn-warning btn-sm">View & Resubmit</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="alert alert-info">You have no tasks to resubmit.</div>
+{% endif %}
+
+{% endblock %}

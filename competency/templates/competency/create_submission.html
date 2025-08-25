@@ -1,0 +1,163 @@
+{% extends 'competency/base.html' %}
+{% load static %}
+
+{% block title %}Create Submission{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">Create New Submission</h1>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Submission Details</h6>
+            </div>
+            <div class="card-body">
+
+                <!-- Alert Messages -->
+                {% if message %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endif %}
+                {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <!-- Submission Form -->
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Competency Dropdown -->
+<div class="form-group">
+    <label for="competency" class="font-weight-bold">Select Competency</label>
+    <select name="competency" id="competency" class="form-control" required>
+        <option value="">-- Choose a competency --</option>
+
+        {# This loop now unpacks both the ID and the name for each competency #}
+        {% for competency_id, competency_name in competencies %}
+
+            {# The option's value is the ID, but the text shown is the name #}
+            <option value="{{ competency_id }}">{{ competency_name }}</option>
+
+        {% endfor %}
+    </select>
+</div>
+
+                    <!-- Attachment Section -->
+                    <div class="form-group mt-3">
+                        <label class="font-weight-bold">Evidence Attachments</label>
+                        <!-- This is where the file previews will be added -->
+                        <div id="attachments-list" class="mb-2"></div>
+                        <!-- This button will add new file inputs -->
+                        <button type="button" id="add-attachment-btn" class="btn btn-primary btn-sm btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-paperclip"></i>
+                            </span>
+                            <span class="text">Add Attachment</span>
+                        </button>
+                    </div>
+                    <!-- The old, confusing file input section has been removed -->
+
+                    <!-- Description -->
+                    <div class="form-group mt-3">
+                        <label for="description" class="font-weight-bold">Description (will apply to all files)</label>
+                        <textarea name="description" id="description" class="form-control" rows="3" placeholder="Optional description of the evidence..."></textarea>
+                    </div>
+
+                    <!-- Assessor Selection -->
+                    <div class="form-group mt-3">
+                        <label for="assessor" class="font-weight-bold">Assign Assessor</label>
+                        <select name="assessor" id="assessor" class="form-control" required>
+                            <option value="">-- Select an assessor --</option>
+                            {% for person in assessors %}
+                                <option value="{{ person }}">{{ person }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <hr>
+                    <button type="submit" class="btn btn-success btn-icon-split">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-check"></i>
+                        </span>
+                        <span class="text">Submit Evidence for Review</span>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block page_level_scripts %}
+<script>
+$(document).ready(function() {
+    const form = $('form');
+    const attachmentsList = $('#attachments-list');
+
+    // When the "Add Attachment" button is clicked
+    $('#add-attachment-btn').on('click', function() {
+        // Create a new, hidden file input element
+        const newFileInput = $('<input type="file" name="evidence_files" class="d-none">');
+
+        // Add it to the form so its data will be submitted
+        form.append(newFileInput);
+
+        // Listen for when a file is selected in this new input
+        newFileInput.on('change', function() {
+            const file = this.files[0];
+            if (file) {
+                // Create the preview card HTML
+                const previewHtml = `
+                    <div class="card attachment-card mt-2 border-left-info">
+                        <div class="card-body py-2 px-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    <i class="fas fa-file-alt fa-2x text-gray-400 mr-3"></i>
+                                    <div>
+                                        <strong class="d-block text-primary" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${file.name}">${file.name}</strong>
+                                        <small class="text-muted">${(file.size / 1024).toFixed(2)} KB</small>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-attachment-btn">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                const previewElement = $(previewHtml);
+                attachmentsList.append(previewElement);
+
+                // Associate the hidden file input with its visible preview card
+                previewElement.data('fileInput', newFileInput);
+            } else {
+                // If the user cancels the file dialog, remove the hidden input we just added
+                newFileInput.remove();
+            }
+        });
+
+        // Programmatically click the hidden file input to open the file selection dialog
+        newFileInput.click();
+    });
+
+    // Use event delegation to handle clicks on the dynamically added remove buttons
+    attachmentsList.on('click', '.remove-attachment-btn', function() {
+        const cardToRemove = $(this).closest('.attachment-card');
+
+        // Find the associated hidden file input and remove it from the form
+        const fileInputToRemove = cardToRemove.data('fileInput');
+        if (fileInputToRemove) {
+            fileInputToRemove.remove();
+        }
+
+        // Remove the visible preview card from the page
+        cardToRemove.remove();
+    });
+});
+</script>
+{% endblock %}
+
+

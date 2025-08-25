@@ -1,0 +1,103 @@
+{% extends 'competency/base.html' %}
+{% load static %}
+
+{% block title %}My Competencies{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">My Competencies</h1>
+
+<!-- KPI Cards Row -->
+<div class="row">
+
+    <!-- Approved Progress Card -->
+    <div class="col-xl-6 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Approved</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ approved_percent|floatformat:0 }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Progress Card -->
+    <div class="col-xl-6 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pending</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ pending_percent|floatformat:0 }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Competencies Table -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Competency Status</h6>
+    </div>
+    <div class="card-body">
+        {% if competencies %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Competency Name</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comp in competencies %}
+                        <tr>
+                           <td>{{ comp.name }}</td>
+                           <td>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ comp.progress }}%;"
+                                         aria-valuenow="{{ comp.progress }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ comp.progress }}%
+                                    </div>
+                                </div>
+                           </td>
+                           <td>
+                                {% if comp.status|lower == 'approved' %}
+                                    <span class="badge badge-success">Approved</span>
+                                {% elif comp.status|lower == 'pending' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                {% elif comp.status|lower == 'rejected' %}
+                                    <span class="badge badge-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">{{ comp.status }}</span>
+                                {% endif %}
+                           </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                You have no competencies assigned yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

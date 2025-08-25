@@ -1,0 +1,70 @@
+{% extends 'competency/base.html' %}
+{% load static %}
+
+{% block title %}View Feedback{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">Submission Feedback</h1>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Feedback for: {{ file_name }}</h6>
+            </div>
+            <div class="card-body">
+
+                <!-- Submission Details -->
+                <dl class="row mb-4">
+                    <dt class="col-sm-3">Description:</dt>
+                    <dd class="col-sm-9">{{ description|default:"No description provided." }}</dd>
+
+                    <dt class="col-sm-3">Status:</dt>
+                    <dd class="col-sm-9">
+                        {% if status == 'Rejected' %}
+                            <span class="badge badge-danger">{{ status }}</span>
+                        {% else %}
+                            <span class="badge badge-secondary">{{ status }}</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+
+                <!-- Assessor Feedback -->
+                <div class="card bg-light border-left-warning mb-4">
+                    <div class="card-body">
+                        <h6 class="font-weight-bold">Assessor Feedback:</h6>
+                        <p class="mb-0">{{ feedback|default:"No feedback provided."|linebreaksbr }}</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div>
+                    <!-- This is the corrected download link -->
+                    <a href="{% url 'download_evidence' task_id=task_id %}" class="btn btn-info btn-icon-split mr-2">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-download"></i>
+                        </span>
+                        <span class="text">Download Original Evidence</span>
+                    </a>
+
+                    {% if status == "Rejected" %}
+                        <a href="{% url 'resubmit_task' task_id %}" class="btn btn-primary btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            <span class="text">Resubmit Evidence</span>
+                        </a>
+                    {% endif %}
+
+                    <a href="{% url 'tasks' %}" class="btn btn-secondary float-right">Back to Tasks</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

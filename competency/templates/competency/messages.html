@@ -1,0 +1,61 @@
+{% extends 'competency/base.html' %}
+{% load static %}
+
+{% block title %}Messages & Audit Trail{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">Messages</h1>
+
+<!-- Messages Table Card -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Your Activity Log</h6>
+    </div>
+    <div class="card-body">
+        {% if messages %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Action</th>
+                            <th>Target File / Item</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for message in messages %}
+                        <tr>
+                            {# Accessing tuple elements by index #}
+                            <td>{{ message.0|date:"d M Y, P" }}</td>
+                            <td>
+                                {% if "Submitted" in message.1 %}
+                                    <span class="badge badge-info">{{ message.1 }}</span>
+                                {% elif "Approved" in message.1 %}
+                                    <span class="badge badge-success">{{ message.1 }}</span>
+                                {% elif "Rejected" in message.1 %}
+                                    <span class="badge badge-danger">{{ message.1 }}</span>
+                                {% elif "Resubmitted" in message.1 %}
+                                    <span class="badge badge-warning">{{ message.1 }}</span>
+                                {% else %}
+                                    {{ message.1 }}
+                                {% endif %}
+                            </td>
+                            <td>{{ message.2 }}</td>
+                            <td>{{ message.3 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center p-4">
+                <p class="text-muted mb-0">You have no messages or activity to display.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

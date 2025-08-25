@@ -1,0 +1,95 @@
+{% extends 'competency/base.html' %}
+{% load static %}
+
+{% block title %}Review Task{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">Review Submission</h1>
+
+<div class="row">
+    <div class="col-lg-12">
+
+        <!-- Success Message -->
+        {% if message %}
+          <div class="alert alert-success">
+            {{ message }}
+          </div>
+        {% endif %}
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Evidence Details</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">File Name:</dt>
+                    <dd class="col-sm-9">{{ file_name }}</dd>
+
+                    <dt class="col-sm-3">Submitted by:</dt>
+                    <dd class="col-sm-9">{{ submitted_by }}</dd>
+
+                    <dt class="col-sm-3">Description:</dt>
+                    <dd class="col-sm-9">{{ description|default:"No description provided." }}</dd>
+
+                    <dt class="col-sm-3">Current Status:</dt>
+                    <dd class="col-sm-9">
+                        {% if status == 'Approved' %}
+                            <span class="badge badge-success">Approved</span>
+                        {% elif status == 'Pending' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif status == 'Rejected' %}
+                            <span class="badge badge-danger">Rejected</span>
+                        {% else %}
+                            <span class="badge badge-secondary">{{ status }}</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+
+                <!-- Corrected download link -->
+                <a href="{% url 'download_evidence' task_id=task_id %}" class="btn btn-info btn-icon-split mb-4">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-download"></i>
+                    </span>
+                    <span class="text">Download Evidence</span>
+                </a>
+
+                <hr>
+
+                {% if status == 'Pending' %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="feedback" class="font-weight-bold">Feedback to Submitter</label>
+                        <textarea name="feedback" class="form-control" rows="4" placeholder="Provide constructive feedback..." required></textarea>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" name="action" value="approve" class="btn btn-success btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span class="text">Approve</span>
+                        </button>
+
+                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-icon-split ml-2">
+                             <span class="icon text-white-50">
+                                <i class="fas fa-times"></i>
+                            </span>
+                            <span class="text">Reject</span>
+                        </button>
+
+                        <a href="{% url 'tasks' %}" class="btn btn-secondary float-right">Back to Tasks</a>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-info">This task has already been reviewed.</div>
+                <a href="{% url 'tasks' %}" class="btn btn-secondary">Back to Tasks</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

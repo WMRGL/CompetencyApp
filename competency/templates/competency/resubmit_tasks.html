@@ -1,0 +1,30 @@
+<h2>Resubmissions Needed</h2>
+
+{% if tasks %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Evidence</th>
+                <th>Description</th>
+                <th>Feedback</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.1 }}</td>
+                <td>{{ task.2 }}</td>
+                <td>{{ task.3 }}</td>
+                <td>{{ task.4 }}</td>
+                <td>
+                    <a href="{% url 'resubmit_task' task.0 %}" class="btn btn-sm btn-warning">Resubmit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No rejected tasks to resubmit.</p>
+{% endif %}

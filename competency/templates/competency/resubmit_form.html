@@ -1,0 +1,107 @@
+{% extends 'competency/base.html' %}
+{% load static %}
+
+{% block title %}Resubmit Evidence{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">Resubmit Evidence</h1>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Upload New Evidence File</h6>
+            </div>
+            <div class="card-body">
+
+                <!-- Assessor Feedback Section -->
+                <div class="form-group">
+                    <label class="font-weight-bold">Assessor Feedback:</label>
+                    <div class="card bg-light border-left-warning mt-2">
+                        <div class="card-body">
+                            {{ feedback|default:"No feedback provided."|linebreaksbr }}
+                        </div>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Resubmission Form -->
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- New File Upload -->
+                    <div class="form-group">
+                        <label for="new_file" class="font-weight-bold">Choose New File</label>
+                        <div class="custom-file">
+                            <input type="file" name="new_file" id="new_file" class="custom-file-input" required>
+                            <label class="custom-file-label" for="new_file">Choose file...</label>
+                        </div>
+                        <div id="file-preview-container" class="mt-2"></div>
+                    </div>
+
+                    <!-- New Description/Comments -->
+                    <div class="form-group mt-3">
+                        <label for="resubmit_description" class="font-weight-bold">Comments or Notes (Optional)</label>
+                        <textarea name="resubmit_description" id="resubmit_description" class="form-control" rows="4" placeholder="Explain any updates or changes..."></textarea>
+                    </div>
+
+                    <hr>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'tasks' %}" class="btn btn-secondary btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-arrow-left"></i>
+                            </span>
+                            <span class="text">Cancel</span>
+                        </a>
+                        <button type="submit" class="btn btn-success btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span class="text">Submit New Evidence</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// This script uses jQuery to show a preview of the selected file.
+$(document).ready(function() {
+  $('#new_file').on('change', function() {
+    var fileName = $(this).val().split('\\').pop();
+    $(this).next('.custom-file-label').html(fileName);
+
+    const file = this.files[0];
+    const previewContainer = $('#file-preview-container');
+    previewContainer.empty();
+
+    if (file) {
+      const previewHtml = `
+        <div class="card mt-2 border-left-info">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-file-alt fa-2x text-gray-400 mr-3"></i>
+              <div>
+                <strong class="d-block text-primary">${file.name}</strong>
+                <small class="text-muted">${(file.size / 1024).toFixed(2)} KB</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      previewContainer.html(previewHtml);
+    }
+  });
+});
+</script>
+{% endblock %}

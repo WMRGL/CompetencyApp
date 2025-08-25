@@ -1,0 +1,216 @@
+{% extends 'competency/base.html' %}
+{% load static %}
+
+{% block title %}Assign Competency{% endblock %}
+
+{% block content %}
+
+<!-- Page Heading -->
+<h1 class="h3 mb-4 text-gray-800">Assign Competency</h1>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+
+        {% if message %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endif %}
+
+        <form method="POST" id="assessmentForm">
+            {% csrf_token %}
+            <input type="hidden" name="criteria_data" id="criteria_data_input">
+
+            <!-- Core Details -->
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="team_members" class="font-weight-bold">Select Team Members</label>
+                    <select name="team_members" id="team_members" class="form-control" multiple required size="8">
+                        {% for member in team_members %}
+                            <option value="{{ member.id }}">{{ member.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="assessment_date" class="font-weight-bold">Assessment Date</label>
+                    <input type="date" name="assessment_date" id="assessment_date" class="form-control" required>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Competency Definition -->
+            <h5 class="mt-4 mb-3">Define Competency</h5>
+            <div class="form-group">
+                <label for="new_competency_name" class="font-weight-bold">Competency Name</label>
+                <input type="text" name="new_competency_name" class="form-control" placeholder="e.g., Manual PCR" required>
+            </div>
+
+            <!-- Performance Objectives Section -->
+            <div class="form-group">
+                <label class="font-weight-bold">Performance Objectives / Criteria</label>
+                <div id="newObjectivesContainer">
+                    <!-- Initial fields are hardcoded for reliability -->
+                    <div class="input-group mb-2">
+                        <input type="text" name="new_objectives" class="form-control" placeholder="Enter objective text" value="Follows SOP(s)/Policy correctly" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-danger remove-objective-btn" type="button" title="Remove objective">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group mb-2">
+                        <input type="text" name="new_objectives" class="form-control" placeholder="Enter objective text" value="Output meets laboratory standards" required>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-danger remove-objective-btn" type="button" title="Remove objective">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="addObjectiveBtn" class="btn btn-sm btn-info mt-2">
+                    <i class="fas fa-plus"></i> Add Objective
+                </button>
+            </div>
+
+            <hr>
+
+            <!-- Performance Assessment Table -->
+            <div id="criteriaSection" style="display: none;" class="mt-4">
+                <h5 class="mb-3">Record Assessment</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="criteriaTable">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Objective</th>
+                                <th style="width: 15%;">Assessment</th>
+                                <th style="width: 30%;">Evidence Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <hr class="mt-4">
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{% url 'team_dashboard' %}" class="btn btn-secondary btn-icon-split">
+                    <span class="icon text-white-50"><i class="fas fa-arrow-left"></i></span>
+                    <span class="text">Cancel</span>
+                </a>
+                <button type="submit" class="btn btn-success btn-icon-split">
+                    <span class="icon text-white-50"><i class="fas fa-check"></i></span>
+                    <span class="text">Assign & Record</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('assessmentForm');
+    const criteriaDataInput = document.getElementById('criteria_data_input');
+    const criteriaSection = document.getElementById('criteriaSection');
+    const criteriaTableBody = document.querySelector('#criteriaTable tbody');
+    const objectivesContainer = document.getElementById('newObjectivesContainer');
+    const addObjectiveBtn = document.getElementById('addObjectiveBtn');
+
+    // Function to sync the objectives list with the assessment table
+    function updateCriteriaTable() {
+        const objectiveInputs = objectivesContainer.querySelectorAll('input[name="new_objectives"]');
+        const objectivesList = Array.from(objectiveInputs)
+            .map(input => ({ text: input.value.trim() }))
+            .filter(obj => obj.text); // Only include non-empty objectives
+
+        criteriaTableBody.innerHTML = ''; // Clear the table
+        if (objectivesList.length > 0) {
+            objectivesList.forEach(obj => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${escapeHTML(obj.text)}</td>
+                    <td>
+                        <select class="form-control criterion-result" required>
+                            <option>Met</option><option>Not Met</option><option>N/A</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="form-control criterion-evidence" placeholder="e.g., Sample ID 12345"></td>
+                `;
+                row.dataset.objectiveText = obj.text;
+                criteriaTableBody.appendChild(row);
+            });
+            criteriaSection.style.display = 'block';
+        } else {
+            criteriaSection.style.display = 'none';
+        }
+    }
+
+    // Function to add a new, blank objective input field
+    function addNewObjectiveInput() {
+        const div = document.createElement('div');
+        div.className = 'input-group mb-2';
+        div.innerHTML = `
+            <input type="text" name="new_objectives" class="form-control" placeholder="Enter objective text" value="" required>
+            <div class="input-group-append">
+                <button class="btn btn-outline-danger remove-objective-btn" type="button" title="Remove objective">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        objectivesContainer.appendChild(div);
+        updateCriteriaTable(); // Update the table after adding
+    }
+
+    // --- EVENT LISTENERS ---
+
+    // Listen for clicks on the 'Add Objective' button
+    addObjectiveBtn.addEventListener('click', addNewObjectiveInput);
+
+    // Use event delegation on the container for events on dynamic elements
+    objectivesContainer.addEventListener('click', function(e) {
+        // Check if a 'remove' button was clicked
+        if (e.target.closest('.remove-objective-btn')) {
+            // Prevent removing the very last objective field
+            if (objectivesContainer.querySelectorAll('input[name="new_objectives"]').length > 1) {
+                e.target.closest('.input-group').remove();
+                updateCriteriaTable();
+            }
+        }
+    });
+
+    objectivesContainer.addEventListener('input', function(e) {
+        // Check if the user is typing in an objective field
+        if (e.target.matches('input[name="new_objectives"]')) {
+            updateCriteriaTable();
+        }
+    });
+
+    // Function to prepare the objective data for form submission
+    form.addEventListener('submit', function(event) {
+        const criteriaRows = criteriaTableBody.querySelectorAll('tr');
+        const payload = [];
+        criteriaRows.forEach(row => {
+            if (row.dataset.objectiveText) {
+                payload.push({
+                    objectiveText: row.dataset.objectiveText,
+                    result: row.querySelector('.criterion-result').value,
+                    evidence: row.querySelector('.criterion-evidence').value
+                });
+            }
+        });
+        criteriaDataInput.value = JSON.stringify(payload);
+    });
+
+    // Helper function to prevent HTML injection
+    function escapeHTML(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // Initial call to sync the pre-filled objectives with the assessment table
+    updateCriteriaTable();
+});
+</script>
+{% endblock %}

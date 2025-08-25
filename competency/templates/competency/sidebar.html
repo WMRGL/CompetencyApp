@@ -1,0 +1,72 @@
+{% load static %}
+<!-- Sidebar -->
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'home' %}">
+        <div class="sidebar-brand-icon">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" style="height: 40px;">
+        </div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Home -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'home' %}">
+            <i class="fas fa-fw fa-home"></i>
+            <span>Home</span></a>
+    </li>
+
+    <!-- Nav Item - Competency -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'portfolio' %}">
+            <i class="fas fa-fw fa-briefcase"></i>
+            <span>Competency</span></a>
+    </li>
+
+    <!-- Nav Item - Tasks -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'tasks' %}">
+            <i class="fas fa-fw fa-tasks"></i>
+            <span>Tasks</span>
+            {% if pending_task_count > 0 %}
+                <span class="badge modern-notification-badge ml-2">{{ pending_task_count }}</span>
+            {% endif %}
+        </a>
+    </li>
+
+    <!-- Nav Item - Create Submission -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'submissions' %}">
+            <i class="fas fa-fw fa-plus-circle"></i>
+            <span>Create Submission</span></a>
+    </li>
+
+    <!-- Nav Item - Messages -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'messages' %}">
+            <i class="fas fa-fw fa-envelope"></i>
+            <span>Messages</span></a>
+    </li>
+
+    <!-- Conditionally show Team View for managers -->
+    {% if is_line_manager %}
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">
+        Manager Tools
+    </div>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'team_dashboard' %}">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Team View</span></a>
+    </li>
+    {% endif %}
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+
+</ul>
+<!-- End of Sidebar -->
+
