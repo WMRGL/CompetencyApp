@@ -1,6 +1,6 @@
 # Competency Management App for Genetics
 
-A Django-based web application designed for the genetics team to manage employee competencies. The platform allows for uploading evidence, signing off on skills, assigning tasks, and maintaining a comprehensive record of team capabilities.
+A web application designed for the genetics team to manage employee competencies. The platform allows for uploading evidence, signing off on skills, assigning tasks, and maintaining a comprehensive record of team capabilities.
 
 ## Key Features
 
