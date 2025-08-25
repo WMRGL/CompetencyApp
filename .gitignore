@@ -12,3 +12,6 @@ __pycache__/
 
 # IDE
 .idea/
+
+# Temporary evidence uploads until sign off
+temp_uploads/
